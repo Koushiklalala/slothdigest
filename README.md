@@ -61,7 +61,7 @@ Before even getting out of bed, you end up doomscrolling through lost reading gl
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/username/slothdigest.git
+git clone https://github.com/Koushiklalala/slothdigest.git
 cd slothdigest
 
 # Install dependencies

@@ -100,7 +100,7 @@ To make the experience truly relaxing, SlothDigest includes:
 ## 🚀 Try It Live
 
 - **Live Application**: [Launch SlothDigest Demo](https://slothdigest.local)
-- **GitHub Repository**: [github.com/username/slothdigest](https://github.com/username/slothdigest)
+- **GitHub Repository**: [github.com/Koushiklalala/slothdigest](https://github.com/Koushiklalala/slothdigest)
 - **Built for**: Hacktoberfest 2026 Week 3 Challenge (*Slow and Steady*)
 
 Happy International Sloth Day! Move slow, stay steady, and let open-source AI do the work. 🦥✨
