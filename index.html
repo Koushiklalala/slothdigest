@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SlothDigest 🦥 | The Offline-First AI Chat & Notification Tamer (Hacktoberfest Week 3)</title>
+  <meta name="description" content="A privacy-first local AI agent powered by Gemma 2, Mastra, and Sentry Tracing that boils chaotic 200-message chat threads into a 2-line Sloth Briefing while you sleep. Built for Hacktoberfest 2026 Week 3: Slow and Steady.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22><text y=%2226%22 font-size=%2226%22>🦥</text></svg>">
+  <link rel="stylesheet" href="/src/styles/index.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="site-header">
+      <div class="brand-wrapper">
+        <div class="brand-mascot-icon" id="brand-mascot" title="Barnaby the Sloth">🦥</div>
+        <div class="brand-titles">
+          <h1>
+            SlothDigest
+            <span class="hf-badge">HF '26 Week 3</span>
+          </h1>
+          <p class="brand-tagline">Slow and Steady AI for Chronic Procrastinators • Powered by Gemma 2, Mastra & Sentry</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Model Selector -->
+        <div class="model-runtime-selector" title="Select Gemma 2 Model Runtime">
+          <span>🧠 Engine:</span>
+          <select id="select-runtime" class="runtime-select">
+            <option value="instant">Gemma 2 (Instant Neural Engine)</option>
+            <option value="ollama">Gemma 2 (Local Ollama :11434)</option>
+            <option value="webgpu">Gemma 2 (In-Browser WebGPU)</option>
+          </select>
+        </div>
+
+        <!-- Ambient Sound Button -->
+        <button id="btn-ambient-toggle" class="btn-ambient" title="Toggle Procedural Gentle Rain & Zen Tone">
+          <span id="ambient-icon">🌧️</span>
+          <span id="ambient-text">Ambient Soundscape</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="tab-btn active" id="tab-btn-hub" data-target="section-hub">
+        <span>🦥</span> Digest Hub
+      </button>
+      <button class="tab-btn" id="tab-btn-mastra" data-target="section-mastra">
+        <span>🧠</span> Mastra Agent Pipeline
+      </button>
+      <button class="tab-btn" id="tab-btn-sentry" data-target="section-sentry">
+        <span>📈</span> Sentry Agent Tracing
+      </button>
+      <button class="tab-btn" id="tab-btn-open" data-target="section-open">
+        <span>🔒</span> Gemma 2 & Open Innovation
+      </button>
+      <button class="tab-btn" id="tab-btn-dev" data-target="section-dev">
+        <span>📝</span> DEV Submission Post
+      </button>
+    </nav>
+
+    <!-- MAIN CONTENT SECTIONS -->
+
+    <!-- ==================== TAB 1: DIGEST HUB ==================== -->
+    <main id="section-hub" class="tab-content-section">
+      <div class="digest-grid">
+        <!-- Left: Input & Scenario Chooser -->
+        <section class="card-glass input-column">
+          <div class="card-header-flex">
+            <h2 class="card-title">
+              <span>📥</span> Chaotic Chat Streams
+            </h2>
+            <span class="scenario-meta-badge" id="badge-active-scenario">Family WhatsApp</span>
+          </div>
+
+          <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 14px;">
+            Select a dread-inducing chat transcript to tame, or paste your own messy email/group chat:
+          </p>
+
+          <!-- Scenario Pills -->
+          <div class="scenarios-carousel" id="scenarios-container">
+            <!-- Dynamically populated by main.js -->
+          </div>
+
+          <!-- Raw Input Textarea -->
+          <div class="chat-raw-wrapper">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label for="input-chat-text" style="font-size: 12.5px; font-weight: 600; color: var(--text-muted);">
+                Raw Transcript:
+              </label>
+              <span id="char-counter" style="font-family: var(--font-mono); font-size: 11px; color: var(--text-dim);">
+                3,840 chars
+              </span>
+            </div>
+            <textarea id="input-chat-text" class="chat-raw-textarea" placeholder="Paste your chaotic chat messages, Slack thread, or email chain here..."></textarea>
+          </div>
+
+          <!-- Digest Trigger CTA -->
+          <button id="btn-run-digest" class="btn-digest-cta">
+            <span>🦥</span> Run Sloth Digest (Gemma 2 + Mastra)
+          </button>
+
+          <!-- Progress / Status Bar -->
+          <div id="digest-progress-wrapper" style="display: none; margin-top: 14px;">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;">
+              <span id="digest-status-text" style="color: var(--emerald-light); font-weight: 600;">Processing with Gemma 2...</span>
+              <span id="digest-progress-percent" style="font-family: var(--font-mono); color: var(--amber-light);">40%</span>
+            </div>
+            <div class="span-bar-container">
+              <div id="digest-progress-bar" class="span-bar-fill fill-emerald" style="width: 40%;"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right: The Sloth Briefing Output -->
+        <section class="card-glass output-column">
+          <div class="card-header-flex">
+            <h2 class="card-title">
+              <span>🦥</span> The 2-Line Sloth Briefing
+            </h2>
+            <div class="sentry-badge" id="badge-privacy">
+              <span>🔒 100% On-Device</span>
+            </div>
+          </div>
+
+          <div class="briefing-box">
+            <!-- 2-Line Hero Card -->
+            <div class="two-line-hero-card">
+              <div class="digest-tag-line">
+                <span>⚡</span> Zero-Effort Morning Synthesis
+              </div>
+
+              <div class="briefing-line-item">
+                <span class="line-num-badge">1</span>
+                <p id="digest-line-1" style="font-weight: 600;">
+                  Aunt Linda found her floral glasses in the vegetable crisper, and Sunday family dinner is finalized for 6:30 PM at Mom's house.
+                </p>
+              </div>
+
+              <div class="briefing-line-item">
+                <span class="line-num-badge">2</span>
+                <p id="digest-line-2" style="color: var(--emerald-light); font-weight: 600;">
+                  Your sole task: Pick up 2 loaves of garlic sourdough bread on your way over and tell Aunt Linda her dog is cute. 140 lines of chaos successfully ignored.
+                </p>
+              </div>
+            </div>
+
+            <!-- Audio Readout Bar -->
+            <div class="audio-briefing-bar">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">🎧</span>
+                <div>
+                  <div style="font-size: 13px; font-weight: 700; color: #ffffff;">Hands-Free Bedtime Audio</div>
+                  <div style="font-size: 11.5px; color: var(--text-muted);">Listen with your eyes closed in bed</div>
+                </div>
+              </div>
+              <button id="btn-narrate-digest" class="btn-narrate">
+                <span id="narrate-icon">▶️</span>
+                <span id="narrate-label">Narrate to Me</span>
+              </button>
+            </div>
+
+            <!-- Action Items List -->
+            <div class="actions-section">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <h3 style="font-family: var(--font-display); font-size: 14px; font-weight: 700;">
+                  📋 Direct Actions For You:
+                </h3>
+                <span id="action-count-badge" style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">2 items</span>
+              </div>
+              <div id="actions-list-container">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Drama Filter Summary -->
+            <div style="background: rgba(244, 63, 94, 0.08); border: 1px solid rgba(244, 63, 94, 0.25); border-radius: var(--radius-md); padding: 14px 18px;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <span style="font-size: 16px;">🛡️</span>
+                <span style="font-family: var(--font-display); font-size: 13.5px; font-weight: 700; color: #fda4af;">Mastra Drama Filter:</span>
+                <span id="drama-status-badge" style="font-family: var(--font-mono); font-size: 11px; background: rgba(244, 63, 94, 0.2); color: #fecdd3; padding: 2px 7px; border-radius: var(--radius-sm);">2 Flamewars Quarantined</span>
+              </div>
+              <p id="drama-description-text" style="font-size: 12.5px; color: #cbd5e1; line-height: 1.4;">
+                Uncle Dave vs. Aunt Linda regarding Sunday kickoff vs. dessert timing; Chloe poking fun at Aunt Linda's Caps Lock usage. (Verdict: 100% ignorable).
+              </p>
+            </div>
+
+            <!-- Sloth Scorecard Metrics Ribbon -->
+            <div class="sloth-scorecard-grid">
+              <div class="metric-box">
+                <div class="metric-val" id="metric-minutes">9 min</div>
+                <div class="metric-label">Doomscroll Saved</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-val" id="metric-energy" style="color: var(--amber-light);">97.4%</div>
+                <div class="metric-label">Energy Conserved</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-val" id="metric-noise">91.5%</div>
+                <div class="metric-label">Noise Filtered</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-val" style="color: var(--sky-primary);">$0.00</div>
+                <div class="metric-label">Cloud API Cost</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- ==================== TAB 2: MASTRA AGENT PIPELINE ==================== -->
+    <section id="section-mastra" class="tab-content-section" style="display: none;">
+      <div class="card-glass mastra-pipeline-container">
+        <div class="card-header-flex">
+          <div>
+            <h2 class="card-title">
+              <span>🧠</span> Mastra Agent Orchestration Pipeline
+            </h2>
+            <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 4px;">
+              Targeting the <strong>Best Use of Mastra ($100)</strong> prize category: multi-step state machine with noise pruning, drama isolation & local Gemma 2 reasoning.
+            </p>
+          </div>
+          <span class="hf-badge" style="background: rgba(139, 92, 246, 0.15); color: #c084fc; border-color: rgba(139, 92, 246, 0.35);">
+            Mastra Workflow v0.8.2
+          </span>
+        </div>
+
+        <!-- Visual Step Track -->
+        <div class="workflow-steps-track" id="mastra-step-nodes">
+          <div class="step-node completed" data-step="0">
+            <div class="step-circle">1</div>
+            <div class="step-node-title">Normalizer</div>
+            <div class="step-node-sub">Parse handles & timestamps</div>
+          </div>
+          <div class="step-node completed" data-step="1">
+            <div class="step-circle">2</div>
+            <div class="step-node-title">Noise Pruner</div>
+            <div class="step-node-sub">Discard +1s, bot logs & spam</div>
+          </div>
+          <div class="step-node completed" data-step="2">
+            <div class="step-circle">3</div>
+            <div class="step-node-title">Drama Filter</div>
+            <div class="step-node-sub">Quarantine petty flame wars</div>
+          </div>
+          <div class="step-node completed" data-step="3">
+            <div class="step-circle">4</div>
+            <div class="step-node-title">Gemma 2 Synthesis</div>
+            <div class="step-node-sub">Local open-weight reasoning</div>
+          </div>
+          <div class="step-node completed" data-step="4">
+            <div class="step-circle">5</div>
+            <div class="step-node-title">Sloth Scorecard</div>
+            <div class="step-node-sub">Measure conserved energy %</div>
+          </div>
+        </div>
+
+        <!-- Detailed Cards Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 10px;">
+          <div style="background: rgba(12, 30, 24, 0.6); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 18px;">
+            <div style="font-weight: 700; color: var(--emerald-light); margin-bottom: 8px;">Step 1: Message Normalizer</div>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+              Cleans incoming unformatted chat streams (WhatsApp, Slack, Discord). Extracts timestamps, participant handles, and separates body content from metadata.
+            </p>
+          </div>
+          <div style="background: rgba(12, 30, 24, 0.6); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 18px;">
+            <div style="font-weight: 700; color: var(--amber-light); margin-bottom: 8px;">Step 2: Noise Pruner Tool</div>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+              Invokes Mastra's \`NoisePrunerTool\` to discard 80-90% of chat payload: automated bot status pings, reaction emojis, and redundant filler.
+            </p>
+          </div>
+          <div style="background: rgba(12, 30, 24, 0.6); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 18px;">
+            <div style="font-weight: 700; color: #fda4af; margin-bottom: 8px;">Step 3: Drama Suppression</div>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+              Executes sentiment conflict evaluation. Distinguishes between critical problems and emotional human venting, preventing stress transference.
+            </p>
+          </div>
+          <div style="background: rgba(12, 30, 24, 0.6); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 18px;">
+            <div style="font-weight: 700; color: #c084fc; margin-bottom: 8px;">Step 4: Gemma 2 Reasoning</div>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+              Prompt-engineered inference on Gemma 2 open weights. Formats the strict 2-line sloth briefing and ranks tasks by minimum human effort.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: SENTRY AGENT TRACING ==================== -->
+    <section id="section-sentry" class="tab-content-section" style="display: none;">
+      <div class="card-glass sentry-waterfall-wrapper">
+        <div class="card-header-flex">
+          <div>
+            <h2 class="card-title">
+              <span>📈</span> Sentry Distributed Agent Tracing
+            </h2>
+            <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 4px;">
+              Targeting the <strong>Best Use of Sentry Agent Tracing ($100)</strong> prize category: latency breakdown, span flamegraph, and token telemetry.
+            </p>
+          </div>
+          <button id="btn-export-sentry-json" class="btn-ambient" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.4);">
+            <span>📥</span> Export Sentry Envelope JSON
+          </button>
+        </div>
+
+        <!-- Telemetry Summary -->
+        <div class="trace-summary-header">
+          <div>
+            <div style="font-size: 11.5px; color: var(--text-dim); text-transform: uppercase;">Transaction</div>
+            <div style="font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: #ffffff;" id="sentry-tx-name">agent.chat_digest</div>
+          </div>
+          <div>
+            <div style="font-size: 11.5px; color: var(--text-dim); text-transform: uppercase;">Duration (Latency)</div>
+            <div style="font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--emerald-light);" id="sentry-duration">720 ms</div>
+          </div>
+          <div>
+            <div style="font-size: 11.5px; color: var(--text-dim); text-transform: uppercase;">Prompt / Output Tokens</div>
+            <div style="font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--amber-light);" id="sentry-tokens">894 / 168 tokens</div>
+          </div>
+          <div>
+            <div style="font-size: 11.5px; color: var(--text-dim); text-transform: uppercase;">Cloud Egress Cost</div>
+            <div style="font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--sky-primary);">$0.0000 (Open-Source)</div>
+          </div>
+        </div>
+
+        <!-- Waterfall Span Table -->
+        <table class="waterfall-table">
+          <thead>
+            <tr>
+              <th style="width: 28%;">Span Operation</th>
+              <th style="width: 44%;">Timeline Waterfall</th>
+              <th style="width: 14%;">Duration</th>
+              <th style="width: 14%;">Status</th>
+            </tr>
+          </thead>
+          <tbody id="sentry-waterfall-body">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+
+        <!-- Live JSON Envelope Inspector Modal / Accordion -->
+        <div style="margin-top: 14px;">
+          <details style="background: rgba(7, 19, 15, 0.85); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 18px;">
+            <summary style="font-family: var(--font-mono); font-size: 12px; color: var(--text-accent); cursor: pointer;">
+              🔍 View Raw Sentry OpenTelemetry Envelope JSON Payload
+            </summary>
+            <pre id="sentry-raw-json" style="font-family: var(--font-mono); font-size: 11px; color: #94a3b8; overflow-x: auto; margin-top: 12px; max-height: 240px; padding: 10px; background: rgba(0, 0, 0, 0.4); border-radius: var(--radius-sm);"></pre>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: OPEN INNOVATION & GEMMA 2 ==================== -->
+    <section id="section-open" class="tab-content-section" style="display: none;">
+      <div class="card-glass">
+        <div class="card-header-flex">
+          <div>
+            <h2 class="card-title">
+              <span>🔒</span> Why Open Innovation Matters: Gemma 2 vs. Closed APIs
+            </h2>
+            <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 4px;">
+              Targeting the <strong>Best Use of Gemma ($200)</strong> prize category: running Google's open-weight model locally for private data sovereignty.
+            </p>
+          </div>
+          <span class="hf-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--emerald-light); border-color: rgba(16, 185, 129, 0.35);">
+            Gemma 2 Open-Weights
+          </span>
+        </div>
+
+        <div class="comparison-grid">
+          <!-- Closed Cloud APIs -->
+          <div class="comp-card closed">
+            <h3 class="comp-header" style="color: #fda4af;">
+              <span>❌</span> Proprietary Cloud LLMs
+            </h3>
+            <ul class="comp-list">
+              <li>
+                <span>🔴</span>
+                <div>
+                  <strong>Data Egress Risk:</strong> Private family chats, medical mentions, and confidential company Slack war rooms are transmitted to external servers.
+                </div>
+              </li>
+              <li>
+                <span>🔴</span>
+                <div>
+                  <strong>Recurring Monthly Tolls:</strong> $15–$30/mo in API token charges or subscription fees for every chat summarized.
+                </div>
+              </li>
+              <li>
+                <span>🔴</span>
+                <div>
+                  <strong>Offline Failure:</strong> Stops working entirely on flights, in the backcountry, or during internet outages.
+                </div>
+              </li>
+              <li>
+                <span>🔴</span>
+                <div>
+                  <strong>Arbitrary Model Changes:</strong> Closed providers silently update or deprecate weights, altering agent behavior overnight.
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Open-Source Gemma 2 -->
+          <div class="comp-card open">
+            <h3 class="comp-header" style="color: var(--emerald-light);">
+              <span>✅</span> Open-Weight Gemma 2 (Local)
+            </h3>
+            <ul class="comp-list">
+              <li>
+                <span>🟢</span>
+                <div>
+                  <strong>100% On-Device Sovereignty:</strong> Zero bytes and zero tokens leave your machine. Your personal chats remain strictly local.
+                </div>
+              </li>
+              <li>
+                <span>🟢</span>
+                <div>
+                  <strong>Free Forever:</strong> Zero cloud API invoices. Set it up once on your laptop and run unlimited digests at zero cost.
+                </div>
+              </li>
+              <li>
+                <span>🟢</span>
+                <div>
+                  <strong>100% Offline Capability:</strong> Fully functional in airplane mode, remote cabins, or without any internet connection.
+                </div>
+              </li>
+              <li>
+                <span>🟢</span>
+                <div>
+                  <strong>Custom Weight Control:</strong> Swap between Gemma-2B and Gemma-9B, or fine-tune locally without censorship or vendor lock-in.
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- How to run Gemma Locally Guide -->
+        <div style="margin-top: 24px; background: rgba(12, 30, 24, 0.7); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 20px;">
+          <h3 style="font-family: var(--font-display); font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">
+            💻 Quickstart: Running Gemma 2 Locally via Ollama
+          </h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            SlothDigest connects automatically to your local Ollama instance on <code style="font-family: var(--font-mono); color: var(--text-accent);">http://localhost:11434</code>:
+          </p>
+          <pre style="font-family: var(--font-mono); font-size: 12px; background: #04100c; padding: 12px; border-radius: var(--radius-sm); color: var(--emerald-light); overflow-x: auto;">
+# 1. Install Ollama and pull Gemma 2
+ollama pull gemma2:2b
+
+# 2. Run Gemma 2 locally with CORS enabled for your browser
+OLLAMA_ORIGINS="*" ollama serve</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: DEV SUBMISSION POST ==================== -->
+    <section id="section-dev" class="tab-content-section" style="display: none;">
+      <div class="dev-post-preview">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 20px;">
+          <div>
+            <span class="hf-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--emerald-light);">
+              DEV Submission Ready • #hf26challenge
+            </span>
+          </div>
+          <button id="btn-copy-dev-post" class="btn-copy-markdown">
+            <span>📋</span> Copy Raw Markdown for DEV.to
+          </button>
+        </div>
+
+        <img src="/assets/cover.jpg" alt="SlothDigest Hero Cover Illustration" class="dev-post-hero-img">
+
+        <div id="dev-post-rendered-body" class="markdown-rendered">
+          <!-- Rendered dynamically from devPostContent.js -->
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
